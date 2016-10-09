@@ -1,0 +1,29 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.beesham.popularmovies.DiscoveryFragment">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/empty_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/empty_view_text"
+            android:layout_centerInParent="true"/>
+
+        <GridView
+            android:id="@+id/movies_gridview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:columnWidth="120dp"
+            android:numColumns="auto_fit"
+            android:stretchMode="columnWidth"
+            android:gravity="center"/>
+
+    </RelativeLayout>
+
+</FrameLayout>

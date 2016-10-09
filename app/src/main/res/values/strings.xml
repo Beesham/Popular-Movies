@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Popular Movies</string>
+
+    <!-- Preference values -->
+
+    <!-- Label for empty textview [CHAR LIMIT 20] -->
+    <string name="empty_view_text" translatable="true">No movies to show</string>
+
+    <!-- Account type (for sync-adapter authenticator) -->
+    <!-- SyncAdapter related -->
+    <string name="sync_account_type">popularmovies.beesham.com</string>
+    <string name="content_authority">com.beesham.popularmovies</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
