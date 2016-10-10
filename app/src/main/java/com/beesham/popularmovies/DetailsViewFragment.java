@@ -17,6 +17,7 @@
 package com.beesham.popularmovies;
 
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -30,10 +31,20 @@ import android.view.ViewGroup;
 public class DetailsViewFragment extends Fragment {
 
 
+    public interface Callback{
+        public void onItemSelected(Uri title);
+    }
+
     public DetailsViewFragment() {
         // Required empty public constructor
     }
 
+    public static DetailsViewFragment newInstance(String param1, String param2) {
+        DetailsViewFragment fragment = new DetailsViewFragment();
+        Bundle args = new Bundle();
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

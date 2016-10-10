@@ -64,6 +64,8 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_discovery, container, false);
 
+        final Cursor cursor = getContext().getContentResolver().query(MoviesEntry.CONTENT_URI,)
+
         GridView moviesGridView = (GridView) rootView.findViewById(R.id.movies_gridview);
         mImageAdapter = new ImageAdapter(getContext());
 
@@ -73,6 +75,10 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 //TODO: launch details view per specific movies
+                ((DetailsViewFragment.Callback)getActivity()).onItemSelected(
+                        MoviesEntry.CONTENT_URI
+                                .buildUpon()
+                                .appendPath());
             }
         });
 
