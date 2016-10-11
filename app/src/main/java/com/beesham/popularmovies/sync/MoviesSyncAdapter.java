@@ -47,6 +47,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Vector;
 
+import static android.R.attr.y;
 import static android.R.transition.move;
 import static android.os.Build.VERSION_CODES.M;
 
@@ -57,7 +58,7 @@ import static android.os.Build.VERSION_CODES.M;
 public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter{
 
     private final String LOG_TAG = MoviesSyncAdapter.class.getSimpleName();
-    private static final String API_KEY = "678a4b86323ad301d4fb79d39d7ed2ea";   //TODO: remove this before pushing to Github
+    private static final String API_KEY = "xxxxxxxxxxxxxxxxxxxxx";   //TODO: place API key here
 
     public MoviesSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
@@ -71,20 +72,19 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter{
         String moviesJsonStr = null;
 
         try{
-            final String MOVIES_BASE_URL = "https://api.themoviedb.org/3/discover/movie?";
+            final String MOVIES_BASE_URL = getContext().getString(R.string.movies_base_url);
             final String API_KEY_PARAM = "api_key";
-            final String SORT_PARAM = "sort_by";
 
-            String popularuty_most = "popularity.desc";     //TODO: move this to settings
-            String highest_vote = "vote_average.desc";
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+            String sort_by = prefs.getString(getContext().getString(R.string.pref_sort_key),
+                    getContext().getString(R.string.pref_sort_default));
 
             Uri builtUri = Uri.parse(MOVIES_BASE_URL).buildUpon()
+                    .appendPath(sort_by)
                     .appendQueryParameter(API_KEY_PARAM, API_KEY)
-                    .appendQueryParameter(SORT_PARAM, popularuty_most)
                     .build();
 
             URL url = new URL(builtUri.toString());
-            Log.v(LOG_TAG, "Uri built: " + builtUri.toString());
 
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
@@ -111,7 +111,10 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter{
         } catch (IOException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();
-        }finally {
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, e.getMessage(), e);
+            e.printStackTrace();
+        } finally {
             if(urlConnection != null) urlConnection.disconnect();
             if(reader != null){
                 try {
@@ -129,51 +132,47 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter{
      * and saves it in the database
      * @param moviesJsonStr
      */
-    private void getMovieDataFromJson(String moviesJsonStr) {
+    private void getMovieDataFromJson(String moviesJsonStr) throws JSONException {
+        final String BASE_IMAGE_URL =  getContext().getString(R.string.movies_base_image_url);
 
-        try{
-            JSONObject moviesJSON = new JSONObject(moviesJsonStr);
-            JSONArray moviesListJSON = moviesJSON.getJSONArray("results");
+        JSONObject moviesJSON = new JSONObject(moviesJsonStr);
+        JSONArray moviesListJSON = moviesJSON.getJSONArray("results");
 
-            Vector<ContentValues> contentValuesVector = new Vector<>(moviesListJSON.length());
+        Vector<ContentValues> contentValuesVector = new Vector<>(moviesListJSON.length());
 
-            for(int i = 0; i < moviesListJSON.length(); i++ ) {
-                String title;
-                String overview;
-                String posterPath;
-                double rating;
-                String release_date;
+        for(int i = 0; i < moviesListJSON.length(); i++ ) {
+            String title;
+            String overview;
+            String posterPath;
+            double rating;
+            String release_date;
 
-                JSONObject movieJSON = moviesListJSON.getJSONObject(i);
+            JSONObject movieJSON = moviesListJSON.getJSONObject(i);
 
-                title = movieJSON.getString("title");
-                overview = movieJSON.getString("overview");
-                posterPath = movieJSON.getString("poster_path");
-                rating = movieJSON.getDouble("vote_average");
-                release_date = movieJSON.getString("release_date");
+            title = movieJSON.getString("title");
+            overview = movieJSON.getString("overview");
+            posterPath = movieJSON.getString("poster_path");
+            rating = movieJSON.getDouble("vote_average");
+            release_date = movieJSON.getString("release_date");
 
-                ContentValues movieValues = new ContentValues();
+            ContentValues movieValues = new ContentValues();
 
-                movieValues.put(MoviesEntry.COLUMN_MOVIE_TITLE, title);
-                movieValues.put(MoviesEntry.COLUMN_MOVIE_SYNOPSIS, overview);
-                movieValues.put(MoviesEntry.COLUMN_MOVIE_POSTER, posterPath);
-                movieValues.put(MoviesEntry.COLUMN_MOVIE_USER_RATING, rating);
-                movieValues.put(MoviesEntry.COLUMN_MOVIE_RELEASE_DATE, release_date);
+            movieValues.put(MoviesEntry.COLUMN_MOVIE_TITLE, title);
+            movieValues.put(MoviesEntry.COLUMN_MOVIE_SYNOPSIS, overview);
+            movieValues.put(MoviesEntry.COLUMN_MOVIE_POSTER, BASE_IMAGE_URL + posterPath);
+            movieValues.put(MoviesEntry.COLUMN_MOVIE_USER_RATING, rating);
+            movieValues.put(MoviesEntry.COLUMN_MOVIE_RELEASE_DATE, release_date);
 
-                contentValuesVector.add(movieValues);
-            }
+            contentValuesVector.add(movieValues);
+        }
 
-            int inserted = 0;
-            if(contentValuesVector.size() > 0){
-                ContentValues[] contentValuesArray = new ContentValues[contentValuesVector.size()];
-                contentValuesVector.toArray(contentValuesArray);
+        int inserted = 0;
+        if(contentValuesVector.size() > 0){
+            ContentValues[] contentValuesArray = new ContentValues[contentValuesVector.size()];
+            contentValuesVector.toArray(contentValuesArray);
 
-                inserted = getContext().getContentResolver().bulkInsert(MoviesEntry.CONTENT_URI, contentValuesArray);
-            }
-
-        } catch (JSONException e) {
-            Log.e(LOG_TAG, e.getMessage(), e);
-            e.printStackTrace();
+            getContext().getContentResolver().delete(MoviesEntry.CONTENT_URI, null, null);
+            inserted = getContext().getContentResolver().bulkInsert(MoviesEntry.CONTENT_URI, contentValuesArray);
         }
 
     }
@@ -200,7 +199,7 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter{
         syncImmediately(context);
     }
 
-    private static void syncImmediately(Context context) {
+    public static void syncImmediately(Context context) {
         Bundle b = new Bundle();
         b.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
         b.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);

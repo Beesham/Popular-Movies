@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.beesham.popularmovies.DetailsViewFragment">
+    tools:context="com.beesham.popularmovies.DetailsFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -12,7 +12,7 @@
         <TextView
             android:id="@+id/title_textview"
             android:layout_width="match_parent"
-            android:layout_height="120dp"
+            android:layout_height="wrap_content"
             android:textSize="48dp"
             android:padding="16dp"
             android:gravity="center_vertical"
@@ -21,29 +21,46 @@
             android:background="@color/colorPrimary"
             tools:text="Title"/>
 
-        <ImageView
-            android:id="@+id/poster_imageview"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp"/>
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <ImageView
+                android:id="@+id/poster_imageview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/release_date_textview"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="2016/03/24"/>
+
+                <TextView
+                    android:id="@+id/rating_textview"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="5.0/10"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
 
         <TextView
             android:id="@+id/overview_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="The is the synopsis for the movie."/>
-
-        <TextView
-            android:id="@+id/release_date_textview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:text="2016/03/24"/>
-
-        <TextView
-            android:id="@+id/rating_textview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:text="5.0/10"/>
+            android:padding="16dp"
+            tools:text="This is the synopsis for the movie."/>
 
     </LinearLayout>
 </ScrollView>

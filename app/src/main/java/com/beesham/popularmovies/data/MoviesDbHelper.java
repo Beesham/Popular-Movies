@@ -30,7 +30,7 @@ import com.beesham.popularmovies.data.MoviesContract.MoviesEntry;
 public class MoviesDbHelper extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
-    static final String DATABASE_NAME = "movies.dp";
+    static final String DATABASE_NAME = "movies.db";
 
     public MoviesDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);

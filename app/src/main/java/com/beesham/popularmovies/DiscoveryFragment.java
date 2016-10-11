@@ -17,6 +17,7 @@
 package com.beesham.popularmovies;
 
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -25,16 +26,22 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
 import com.beesham.popularmovies.data.MoviesContract.MoviesEntry;
+import com.beesham.popularmovies.sync.MoviesSyncAdapter;
+
 
 
 /**
  * A simple {@link Fragment} subclass.
+ * Displays movies based on popularity or highest rated
  */
 public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -43,14 +50,7 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
     ImageAdapter mImageAdapter;
 
     public DiscoveryFragment() {
-        // Required empty public constructor
-    }
-
-    public static DiscoveryFragment newInstance(String param1, String param2) {
-        DiscoveryFragment fragment = new DiscoveryFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -64,8 +64,6 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_discovery, container, false);
 
-        final Cursor cursor = getContext().getContentResolver().query(MoviesEntry.CONTENT_URI,)
-
         GridView moviesGridView = (GridView) rootView.findViewById(R.id.movies_gridview);
         mImageAdapter = new ImageAdapter(getContext());
 
@@ -74,11 +72,13 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
         moviesGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                //TODO: launch details view per specific movies
-                ((DetailsViewFragment.Callback)getActivity()).onItemSelected(
-                        MoviesEntry.CONTENT_URI
-                                .buildUpon()
-                                .appendPath());
+                Cursor c = (Cursor) adapterView.getItemAtPosition(i);
+                if(c != null) {
+                    ((DetailsFragment.Callback) getActivity()).onItemSelected(
+                            MoviesEntry.CONTENT_URI
+                                    .buildUpon()
+                                    .appendPath(c.getString(c.getColumnIndex(MoviesEntry.COLUMN_MOVIE_TITLE))).build());
+                }
             }
         });
 
@@ -86,15 +86,33 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
         return rootView;
     }
 
+    void onSortChanged(){
+        MoviesSyncAdapter.syncImmediately(getActivity());
+        getLoaderManager().restartLoader(MOVIES_LOADER, null, this);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
+        super.onCreateOptionsMenu(menu, menuInflater);
+        menuInflater.inflate(R.menu.discoveryfragment, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                startActivity(new Intent(getActivity(), SettingsActivity.class));
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         String[] projection = {
                 MoviesEntry._ID,
-                MoviesEntry.COLUMN_MOVIE_TITLE,
-                MoviesEntry.COLUMN_MOVIE_SYNOPSIS,
                 MoviesEntry.COLUMN_MOVIE_POSTER,
-                MoviesEntry.COLUMN_MOVIE_RELEASE_DATE,
-                MoviesEntry.COLUMN_MOVIE_USER_RATING
         };
 
         return new CursorLoader(getActivity(),

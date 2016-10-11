@@ -16,16 +16,22 @@
 
 package com.beesham.popularmovies;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.GridView;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import com.beesham.popularmovies.sync.MoviesSyncAdapter;
 
-public class MainActivity extends AppCompatActivity implements DetailsViewFragment.Callback {
+import static java.security.AccessController.getContext;
+
+public class MainActivity extends AppCompatActivity implements DetailsFragment.Callback {
+
+    private String mSortBy;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,9 +41,24 @@ public class MainActivity extends AppCompatActivity implements DetailsViewFragme
         MoviesSyncAdapter.initializeSyncAdapter(this);
     }
 
-
     @Override
     public void onItemSelected(Uri contentUri) {
+        Intent intent = new Intent(this, DetailsActivity.class).setData(contentUri);
+        startActivity(intent);
+    }
 
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String sortBy = prefs.getString(getString(R.string.pref_sort_key),
+                getString(R.string.pref_sort_default));
+
+        if(sortBy != null && !sortBy.equals(mSortBy)){
+            DiscoveryFragment discoveryFragment = (DiscoveryFragment) getSupportFragmentManager()
+                    .findFragmentById(R.id.fragment_discovery);
+            if(discoveryFragment != null) discoveryFragment.onSortChanged();
+            mSortBy = sortBy;
+        }
     }
 }

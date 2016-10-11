@@ -1,5 +1,11 @@
-<resources>
+<resources xmlns:xliff="http://schemas.android.com/tools">
     <string name="app_name">Popular Movies</string>
+
+    <string name="rating"><xliff:g id="rating">%s/10</xliff:g></string>
+
+    <!-- String related to Url construction -->
+    <string name="movies_base_url">https://api.themoviedb.org/3/movie/</string>
+    <string name="movies_base_image_url">http://image.tmdb.org/t/p/w185/</string>
 
     <!-- Preference values -->
 
@@ -11,6 +17,27 @@
     <string name="sync_account_type">popularmovies.beesham.com</string>
     <string name="content_authority">com.beesham.popularmovies</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!-- Strings related to Settings -->
+
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- General settings -->
+    <string name="pref_header_general">General</string>
+
+    <string name="pref_title_sort">Sort by</string>
+    <string name="pref_sort_key">sort_by</string>
+    <string name="pref_sort_default">popular</string>
+
+    <string-array name="pref_list_sort_option">
+        <item>Popular</item>
+        <item>Top Rated</item>
+    </string-array>
+
+    <string-array name="pref_list_sort_option_values">
+        <item>popular</item>
+        <item>top_rated</item>
+    </string-array>
+
+
 </resources>
