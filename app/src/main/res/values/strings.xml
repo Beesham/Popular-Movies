@@ -1,11 +1,14 @@
 <resources xmlns:xliff="http://schemas.android.com/tools">
     <string name="app_name">Popular Movies</string>
 
+    <string name="trailers_label">Trailers:</string>
     <string name="rating"><xliff:g id="rating">%s/10</xliff:g></string>
 
     <!-- String related to Url construction -->
     <string name="movies_base_url">https://api.themoviedb.org/3/movie/</string>
     <string name="movies_base_image_url">http://image.tmdb.org/t/p/w185/</string>
+    <string name="movies_base_trailers_url"><xliff:g id="trailers">https://api.themoviedb.org/3/movie/%s/videos</xliff:g></string>
+    <string name="movies_base_youtube_url"><xliff:g id="youtube">https://www.youtube.com/watch?v=%s</xliff:g></string>
 
     <!-- Preference values -->
 

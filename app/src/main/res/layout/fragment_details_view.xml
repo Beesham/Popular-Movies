@@ -13,7 +13,7 @@
             android:id="@+id/title_textview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="48dp"
+            android:textSize="48sp"
             android:padding="16dp"
             android:gravity="center_vertical"
             android:elevation="8dp"
@@ -61,6 +61,17 @@
             android:layout_height="wrap_content"
             android:padding="16dp"
             tools:text="This is the synopsis for the movie."/>
+
+        <TextView
+            android:text="@string/trailers_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="16dp"/>
+
+        <ListView
+            android:id="@+id/list"
+            android:layout_width="match_parent"
+            android:layout_height="133dp"/>
 
     </LinearLayout>
 </ScrollView>

@@ -17,6 +17,7 @@
 package com.beesham.popularmovies;
 
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -29,11 +30,20 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.beesham.popularmovies.data.MoviesContract;
 import com.squareup.picasso.Picasso;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -59,6 +69,29 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
     @BindView(R.id.release_date_textview) TextView releaseDateTextView;
     @BindView(R.id.overview_textview) TextView overviewTextView;
     @BindView(R.id.rating_textview) TextView ratingsTextView;
+    @BindView(R.id.list) ListView trailersListView;
+
+    private String mTrailersStr;
+    private ArrayList mTrailerList;
+    private TrailersAdapter mTrailersAdapter;
+
+    class Trailer{
+        String trailerName;
+        String trailerKey;
+
+        public Trailer(String trailerName, String trailerKey){
+            this.trailerName = trailerName;
+            this.trailerKey = trailerKey;
+        }
+
+        public String getTrailerName() {
+            return trailerName;
+        }
+
+        public String getTrailerKey() {
+            return trailerKey;
+        }
+    }
 
     public interface Callback{
         public void onItemSelected(Uri title);
@@ -74,12 +107,43 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
         View rootView = inflater.inflate(R.layout.fragment_details_view, container, false);
         ButterKnife.bind(this, rootView);
 
+        mTrailerList = new ArrayList();
+        mTrailersAdapter = new TrailersAdapter(getActivity(), mTrailerList);
+        trailersListView.setAdapter(mTrailersAdapter);
+        trailersListView.setOnItemClickListener(
+                new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                        Intent intent = new Intent();
+                        intent.setAction(Intent.ACTION_VIEW);
+                        intent.setData(Uri.parse(getString(R.string.movies_base_youtube_url, ((Trailer)mTrailerList.get(i)).getTrailerKey())));
+                        if(intent.resolveActivity(getActivity().getPackageManager()) != null){
+                            startActivity(intent);
+                        }
+                    }
+                }
+        );
+
         Bundle args = getArguments();
         if(args != null){
             mUri = args.getParcelable(DetailsFragment.DETAIL_URI);
         }
 
         return rootView;
+    }
+
+    private void parseTrailers(){
+        try {
+            JSONObject trailersJSON = new JSONObject(mTrailersStr);
+            JSONArray trailersListJSON = trailersJSON.getJSONArray("results");
+            for(int i = 0; i < trailersListJSON.length(); i++){
+                JSONObject trailerJSON = trailersListJSON.getJSONObject(i);
+                mTrailerList.add(new Trailer(trailerJSON.getString("name"), trailerJSON.getString("key")));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        mTrailersAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -97,7 +161,8 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
                 MoviesContract.MoviesEntry.COLUMN_MOVIE_SYNOPSIS,
                 MoviesContract.MoviesEntry.COLUMN_MOVIE_POSTER,
                 MoviesContract.MoviesEntry.COLUMN_MOVIE_RELEASE_DATE,
-                MoviesContract.MoviesEntry.COLUMN_MOVIE_USER_RATING
+                MoviesContract.MoviesEntry.COLUMN_MOVIE_USER_RATING,
+                MoviesContract.MoviesEntry.COLUMN_MOVIE_TRAILERS
         };
 
         if(mUri != null){
@@ -122,6 +187,9 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
         overviewTextView.setText(data.getString(data.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_MOVIE_SYNOPSIS)));
         ratingsTextView.setText(getString(R.string.rating, data.getString(data.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_MOVIE_USER_RATING))));
         releaseDateTextView.setText(data.getString(data.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_MOVIE_RELEASE_DATE)));
+        mTrailersStr = data.getString(data.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_MOVIE_TRAILERS));
+
+        parseTrailers();
     }
 
     @Override

@@ -58,7 +58,7 @@ import static android.os.Build.VERSION_CODES.M;
 public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter{
 
     private final String LOG_TAG = MoviesSyncAdapter.class.getSimpleName();
-    private static final String API_KEY = "xxxxxxxxxxxxxxxxxxxx";   //TODO: place API key here
+    private static final String API_KEY = "678a4b86323ad301d4fb79d39d7ed2ea";   //TODO: place API key here
 
     public MoviesSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
@@ -127,6 +127,61 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter{
         }
     }
 
+    private String getTrailers(String movieId){
+        HttpURLConnection urlConnection = null;
+        BufferedReader reader = null;
+
+        String movieTrailerJsonStr = null;
+
+        try{
+            final String MOVIE_BASE_TRAILER_URL = getContext().getString(R.string.movies_base_trailers_url, movieId);
+            final String API_KEY_PARAM = "api_key";
+
+            Uri builtUri = Uri.parse(MOVIE_BASE_TRAILER_URL).buildUpon()
+                    .appendQueryParameter(API_KEY_PARAM, API_KEY)
+                    .build();
+
+            URL url = new URL(builtUri.toString());
+
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.connect();
+
+            InputStream inputStream = urlConnection.getInputStream();
+            StringBuffer buffer = new StringBuffer();
+            if(inputStream == null) return null;
+
+            reader = new BufferedReader((new InputStreamReader(inputStream)));
+            String line;
+            while((line = reader.readLine()) != null){
+                buffer.append(line + "\n");
+            }
+
+            if(buffer.length() == 0) return null;
+
+            movieTrailerJsonStr = buffer.toString();
+
+        } catch (MalformedURLException e) {
+            Log.e(LOG_TAG, e.getMessage(), e);
+            e.printStackTrace();
+        } catch (IOException e) {
+            Log.e(LOG_TAG, e.getMessage(), e);
+            e.printStackTrace();
+        } finally {
+            if(urlConnection != null) urlConnection.disconnect();
+            if(reader != null){
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    Log.e(LOG_TAG, e.getMessage(), e);
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return movieTrailerJsonStr;
+    }
+
     /**
      * Parses the movie data from a JSON string
      * and saves it in the database
@@ -142,18 +197,22 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter{
 
         for(int i = 0; i < moviesListJSON.length(); i++ ) {
             String title;
+            String id;
             String overview;
             String posterPath;
             double rating;
             String release_date;
+            String trailers;
 
             JSONObject movieJSON = moviesListJSON.getJSONObject(i);
 
             title = movieJSON.getString("title");
+            id = movieJSON.getString("id");
             overview = movieJSON.getString("overview");
             posterPath = movieJSON.getString("poster_path");
             rating = movieJSON.getDouble("vote_average");
             release_date = movieJSON.getString("release_date");
+            trailers = getTrailers(id);
 
             ContentValues movieValues = new ContentValues();
 
@@ -162,6 +221,7 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter{
             movieValues.put(MoviesEntry.COLUMN_MOVIE_POSTER, BASE_IMAGE_URL + posterPath);
             movieValues.put(MoviesEntry.COLUMN_MOVIE_USER_RATING, rating);
             movieValues.put(MoviesEntry.COLUMN_MOVIE_RELEASE_DATE, release_date);
+            movieValues.put(MoviesEntry.COLUMN_MOVIE_TRAILERS, trailers);
 
             contentValuesVector.add(movieValues);
         }
