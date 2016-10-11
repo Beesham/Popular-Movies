@@ -58,7 +58,7 @@ import static android.os.Build.VERSION_CODES.M;
 public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter{
 
     private final String LOG_TAG = MoviesSyncAdapter.class.getSimpleName();
-    private static final String API_KEY = "xxxxxxxxxxxxxxxxxxxxx";   //TODO: place API key here
+    private static final String API_KEY = "xxxxxxxxxxxxxxxxxxxx";   //TODO: place API key here
 
     public MoviesSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);

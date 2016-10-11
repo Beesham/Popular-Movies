@@ -34,6 +34,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
+import com.beesham.popularmovies.data.MoviesContract;
 import com.beesham.popularmovies.data.MoviesContract.MoviesEntry;
 import com.beesham.popularmovies.sync.MoviesSyncAdapter;
 
@@ -111,8 +112,12 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         String[] projection = {
-                MoviesEntry._ID,
-                MoviesEntry.COLUMN_MOVIE_POSTER,
+                MoviesContract.MoviesEntry._ID,
+                MoviesContract.MoviesEntry.COLUMN_MOVIE_TITLE,
+                MoviesContract.MoviesEntry.COLUMN_MOVIE_SYNOPSIS,
+                MoviesContract.MoviesEntry.COLUMN_MOVIE_POSTER,
+                MoviesContract.MoviesEntry.COLUMN_MOVIE_RELEASE_DATE,
+                MoviesContract.MoviesEntry.COLUMN_MOVIE_USER_RATING
         };
 
         return new CursorLoader(getActivity(),
