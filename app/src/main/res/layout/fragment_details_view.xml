@@ -68,10 +68,36 @@
             android:layout_height="wrap_content"
             android:paddingLeft="16dp"/>
 
-        <ListView
-            android:id="@+id/list"
+        <com.beesham.popularmovies.ExpandedListView
+            android:id="@+id/list_trailers"
             android:layout_width="match_parent"
-            android:layout_height="133dp"/>
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:text="@string/empty_trailers"
+            android:id="@+id/empty_trailers_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"/>
+
+        <TextView
+            android:text="@string/reviews_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="16dp"/>
+
+        <com.beesham.popularmovies.ExpandedListView
+            android:id="@+id/list_reviews"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:text="@string/empty_reviews"
+            android:id="@+id/empty_reviews_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:paddingBottom="16dp"/>
 
     </LinearLayout>
 </ScrollView>

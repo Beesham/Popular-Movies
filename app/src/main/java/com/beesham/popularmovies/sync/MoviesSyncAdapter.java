@@ -127,17 +127,25 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter{
         }
     }
 
-    private String getTrailers(String movieId){
+    private String getTrailersOrReviews(String movieId, int flag){
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
 
         String movieTrailerJsonStr = null;
+        String MOVIE_QUERY_URL = null;
 
         try{
-            final String MOVIE_BASE_TRAILER_URL = getContext().getString(R.string.movies_base_trailers_url, movieId);
+            switch (flag){
+                case 0:
+                    MOVIE_QUERY_URL = getContext().getString(R.string.movies_base_trailers_url, movieId);
+                    break;
+                case 1:
+                    MOVIE_QUERY_URL = getContext().getString(R.string.movies_base_reviews_url, movieId);
+                    break;
+            }
             final String API_KEY_PARAM = "api_key";
 
-            Uri builtUri = Uri.parse(MOVIE_BASE_TRAILER_URL).buildUpon()
+            Uri builtUri = Uri.parse(MOVIE_QUERY_URL).buildUpon()
                     .appendQueryParameter(API_KEY_PARAM, API_KEY)
                     .build();
 
@@ -203,6 +211,7 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter{
             double rating;
             String release_date;
             String trailers;
+            String reviews;
 
             JSONObject movieJSON = moviesListJSON.getJSONObject(i);
 
@@ -212,7 +221,8 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter{
             posterPath = movieJSON.getString("poster_path");
             rating = movieJSON.getDouble("vote_average");
             release_date = movieJSON.getString("release_date");
-            trailers = getTrailers(id);
+            trailers = getTrailersOrReviews(id, 0);
+            reviews = getTrailersOrReviews(id, 1);
 
             ContentValues movieValues = new ContentValues();
 
@@ -222,6 +232,7 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter{
             movieValues.put(MoviesEntry.COLUMN_MOVIE_USER_RATING, rating);
             movieValues.put(MoviesEntry.COLUMN_MOVIE_RELEASE_DATE, release_date);
             movieValues.put(MoviesEntry.COLUMN_MOVIE_TRAILERS, trailers);
+            movieValues.put(MoviesEntry.COLUMN_MOVIE_REVIEWS, reviews);
 
             contentValuesVector.add(movieValues);
         }

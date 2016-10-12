@@ -17,7 +17,7 @@
     <TextView
         tools:text="Official Trailer"
         android:layout_width="match_parent"
-        android:layout_height="31dp"
+        android:layout_height="match_parent"
         android:id="@+id/trailer_name_textview"
         android:gravity="center_vertical"
         android:paddingLeft="8dp"/>

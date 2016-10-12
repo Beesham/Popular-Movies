@@ -2,12 +2,17 @@
     <string name="app_name">Popular Movies</string>
 
     <string name="trailers_label">Trailers:</string>
+    <string name="reviews_label">Reviews:</string>
+    <string name="read_review_label">Read review</string>
+    <string name="empty_reviews">No Reviews</string>
+    <string name="empty_trailers">No Trailers</string>
     <string name="rating"><xliff:g id="rating">%s/10</xliff:g></string>
 
     <!-- String related to Url construction -->
     <string name="movies_base_url">https://api.themoviedb.org/3/movie/</string>
     <string name="movies_base_image_url">http://image.tmdb.org/t/p/w185/</string>
     <string name="movies_base_trailers_url"><xliff:g id="trailers">https://api.themoviedb.org/3/movie/%s/videos</xliff:g></string>
+    <string name="movies_base_reviews_url"><xliff:g id="trailers">https://api.themoviedb.org/3/movie/%s/reviews</xliff:g></string>
     <string name="movies_base_youtube_url"><xliff:g id="youtube">https://www.youtube.com/watch?v=%s</xliff:g></string>
 
     <!-- Preference values -->

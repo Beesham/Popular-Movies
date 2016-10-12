@@ -26,7 +26,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,12 +42,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-
-import static android.R.attr.data;
 
 
 /**
@@ -69,19 +65,27 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
     @BindView(R.id.release_date_textview) TextView releaseDateTextView;
     @BindView(R.id.overview_textview) TextView overviewTextView;
     @BindView(R.id.rating_textview) TextView ratingsTextView;
-    @BindView(R.id.list) ListView trailersListView;
+    @BindView(R.id.list_trailers) ListView trailersListView;
+    @BindView(R.id.empty_trailers_textview) TextView emptyTrailersTextView;
+    @BindView(R.id.list_reviews) ListView reviewsListView;
+    @BindView(R.id.empty_reviews_textview) TextView emptyReviewsTextView;
 
+
+    private String mReviewJSONStr;
     private String mTrailersStr;
-    private ArrayList mTrailerList;
+    private ArrayList mTrailerAndReviewsList;
     private TrailersAdapter mTrailersAdapter;
+    private ReviewAdapter mReviewAdapter;
 
     class Trailer{
         String trailerName;
         String trailerKey;
+        String reviewJSONStr;
 
-        public Trailer(String trailerName, String trailerKey){
+        public Trailer(String trailerName, String trailerKey, String reviewJSONStr){
             this.trailerName = trailerName;
             this.trailerKey = trailerKey;
+            this.reviewJSONStr = reviewJSONStr;
         }
 
         public String getTrailerName() {
@@ -90,6 +94,10 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
 
         public String getTrailerKey() {
             return trailerKey;
+        }
+
+        public String getReviewJSONStr() {
+            return reviewJSONStr;
         }
     }
 
@@ -107,16 +115,22 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
         View rootView = inflater.inflate(R.layout.fragment_details_view, container, false);
         ButterKnife.bind(this, rootView);
 
-        mTrailerList = new ArrayList();
-        mTrailersAdapter = new TrailersAdapter(getActivity(), mTrailerList);
+        mTrailerAndReviewsList = new ArrayList();
+
+        mReviewAdapter = new ReviewAdapter(getActivity(), mTrailerAndReviewsList);
+        reviewsListView.setAdapter(mReviewAdapter);
+        reviewsListView.setEmptyView(emptyReviewsTextView);
+
+        mTrailersAdapter = new TrailersAdapter(getActivity(), mTrailerAndReviewsList);
         trailersListView.setAdapter(mTrailersAdapter);
+        trailersListView.setEmptyView(emptyTrailersTextView);
         trailersListView.setOnItemClickListener(
                 new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                         Intent intent = new Intent();
                         intent.setAction(Intent.ACTION_VIEW);
-                        intent.setData(Uri.parse(getString(R.string.movies_base_youtube_url, ((Trailer)mTrailerList.get(i)).getTrailerKey())));
+                        intent.setData(Uri.parse(getString(R.string.movies_base_youtube_url, ((Trailer) mTrailerAndReviewsList.get(i)).getTrailerKey())));
                         if(intent.resolveActivity(getActivity().getPackageManager()) != null){
                             startActivity(intent);
                         }
@@ -132,13 +146,13 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
         return rootView;
     }
 
-    private void parseTrailers(){
+    private void parseTrailersAndSetReview(){
         try {
             JSONObject trailersJSON = new JSONObject(mTrailersStr);
             JSONArray trailersListJSON = trailersJSON.getJSONArray("results");
             for(int i = 0; i < trailersListJSON.length(); i++){
                 JSONObject trailerJSON = trailersListJSON.getJSONObject(i);
-                mTrailerList.add(new Trailer(trailerJSON.getString("name"), trailerJSON.getString("key")));
+                mTrailerAndReviewsList.add(new Trailer(trailerJSON.getString("name"), trailerJSON.getString("key"), mReviewJSONStr));
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -162,7 +176,8 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
                 MoviesContract.MoviesEntry.COLUMN_MOVIE_POSTER,
                 MoviesContract.MoviesEntry.COLUMN_MOVIE_RELEASE_DATE,
                 MoviesContract.MoviesEntry.COLUMN_MOVIE_USER_RATING,
-                MoviesContract.MoviesEntry.COLUMN_MOVIE_TRAILERS
+                MoviesContract.MoviesEntry.COLUMN_MOVIE_TRAILERS,
+                MoviesContract.MoviesEntry.COLUMN_MOVIE_REVIEWS
         };
 
         if(mUri != null){
@@ -188,8 +203,9 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
         ratingsTextView.setText(getString(R.string.rating, data.getString(data.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_MOVIE_USER_RATING))));
         releaseDateTextView.setText(data.getString(data.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_MOVIE_RELEASE_DATE)));
         mTrailersStr = data.getString(data.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_MOVIE_TRAILERS));
+        mReviewJSONStr = data.getString(data.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_MOVIE_REVIEWS));
 
-        parseTrailers();
+        parseTrailersAndSetReview();
     }
 
     @Override
