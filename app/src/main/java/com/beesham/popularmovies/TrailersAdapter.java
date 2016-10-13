@@ -44,7 +44,7 @@ public class TrailersAdapter extends ArrayAdapter<DetailsFragment.Trailer> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        DetailsFragment.Trailer trailer = getItem(position);
+        final DetailsFragment.Trailer trailer = getItem(position);
 
         if(convertView == null){
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item_trailer, parent, false);

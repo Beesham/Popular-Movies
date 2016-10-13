@@ -131,7 +131,7 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter{
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
 
-        String movieTrailerJsonStr = null;
+        String movieJsonStr = null;
         String MOVIE_QUERY_URL = null;
 
         try{
@@ -167,7 +167,7 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter{
 
             if(buffer.length() == 0) return null;
 
-            movieTrailerJsonStr = buffer.toString();
+            movieJsonStr = buffer.toString();
 
         } catch (MalformedURLException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
@@ -187,7 +187,7 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter{
             }
         }
 
-        return movieTrailerJsonStr;
+        return movieJsonStr;
     }
 
     /**
@@ -226,6 +226,7 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter{
 
             ContentValues movieValues = new ContentValues();
 
+            movieValues.put(MoviesEntry.COLUMN_MOVIE_ID, id);
             movieValues.put(MoviesEntry.COLUMN_MOVIE_TITLE, title);
             movieValues.put(MoviesEntry.COLUMN_MOVIE_SYNOPSIS, overview);
             movieValues.put(MoviesEntry.COLUMN_MOVIE_POSTER, BASE_IMAGE_URL + posterPath);

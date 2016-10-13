@@ -7,6 +7,7 @@
     <string name="empty_reviews">No Reviews</string>
     <string name="empty_trailers">No Trailers</string>
     <string name="rating"><xliff:g id="rating">%s/10</xliff:g></string>
+    <string name="mark_favorite">Mark As\nFavorite</string>
 
     <!-- String related to Url construction -->
     <string name="movies_base_url">https://api.themoviedb.org/3/movie/</string>
@@ -40,11 +41,13 @@
     <string-array name="pref_list_sort_option">
         <item>Popular</item>
         <item>Top Rated</item>
+        <item>Favorites</item>
     </string-array>
 
     <string-array name="pref_list_sort_option_values">
         <item>popular</item>
         <item>top_rated</item>
+        <item>favorites</item>
     </string-array>
 
 

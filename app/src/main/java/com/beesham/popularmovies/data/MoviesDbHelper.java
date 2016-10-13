@@ -21,6 +21,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.beesham.popularmovies.data.MoviesContract.MoviesEntry;
+import com.beesham.popularmovies.data.MoviesContract.MoviesFavoriteEntry;
 
 
 /**
@@ -40,21 +41,37 @@ public class MoviesDbHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         final String SQL_CREATE_MOVIES_TABLE = "CREATE TABLE " + MoviesEntry.TABLE_NAME + "("
                 + MoviesEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + MoviesEntry.COLUMN_MOVIE_ID + " TEXT NOT NULL,"
                 + MoviesEntry.COLUMN_MOVIE_TITLE + " TEXT NOT NULL, "
                 + MoviesEntry.COLUMN_MOVIE_SYNOPSIS + " TEXT NOT NULL, "
                 + MoviesEntry.COLUMN_MOVIE_POSTER + " TEXT NOT NULL, "
                 + MoviesEntry.COLUMN_MOVIE_RELEASE_DATE + " INTEGER NOT NULL, "
                 + MoviesEntry.COLUMN_MOVIE_USER_RATING + " TEXT NOT NULL, "
                 + MoviesEntry.COLUMN_MOVIE_TRAILERS + " TEXT NOT NULL,"
-                + MoviesEntry.COLUMN_MOVIE_REVIEWS + " TEXT NOT NULL"
+                + MoviesEntry.COLUMN_MOVIE_REVIEWS + " TEXT"
+                + ");";
+
+        final String SQL_CREATE_MOVIES_FAVORITE_TABLE = "CREATE TABLE " + MoviesFavoriteEntry.TABLE_NAME + "("
+                + MoviesFavoriteEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + MoviesFavoriteEntry.COLUMN_MOVIE_ID + " TEXT NOT NULL,"
+                + MoviesFavoriteEntry.COLUMN_MOVIE_TITLE + " TEXT NOT NULL, "
+                + MoviesFavoriteEntry.COLUMN_MOVIE_SYNOPSIS + " TEXT NOT NULL, "
+                + MoviesFavoriteEntry.COLUMN_MOVIE_POSTER + " TEXT NOT NULL, "
+                + MoviesFavoriteEntry.COLUMN_MOVIE_RELEASE_DATE + " INTEGER NOT NULL, "
+                + MoviesFavoriteEntry.COLUMN_MOVIE_USER_RATING + " TEXT NOT NULL, "
+                + MoviesFavoriteEntry.COLUMN_MOVIE_TRAILERS + " TEXT NOT NULL,"
+                + MoviesFavoriteEntry.COLUMN_MOVIE_REVIEWS + " TEXT,"
+                + " UNIQUE (" + MoviesFavoriteEntry.COLUMN_MOVIE_ID + ") ON CONFLICT REPLACE"
                 + ");";
 
         sqLiteDatabase.execSQL(SQL_CREATE_MOVIES_TABLE);
+        sqLiteDatabase.execSQL(SQL_CREATE_MOVIES_FAVORITE_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS" + MoviesEntry.TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS" + MoviesFavoriteEntry.TABLE_NAME);
         onCreate(sqLiteDatabase);
     }
 }

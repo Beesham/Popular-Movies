@@ -19,6 +19,7 @@ package com.beesham.popularmovies;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +30,7 @@ import android.widget.TextView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.util.List;
 
@@ -41,7 +43,7 @@ import static android.R.attr.start;
  * Created by Beesham on 10/11/2016.
  */
 
-public class ReviewAdapter extends ArrayAdapter<DetailsFragment.Trailer> {
+public class ReviewAdapter extends ArrayAdapter<DetailsFragment.Reviews> {
     public ReviewAdapter(Context context, List list) {
         super(context, 0, list);
     }
@@ -49,26 +51,22 @@ public class ReviewAdapter extends ArrayAdapter<DetailsFragment.Trailer> {
     @BindView(R.id.review_author_textview)  TextView reviewAuthorTextView;
     @BindView(R.id.read_review_button)  Button readReviewButton;
 
-    private String author;
-    private String reviewUrl;
-
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        final DetailsFragment.Trailer trailer = getItem(position);
+        final DetailsFragment.Reviews reviews = getItem(position);
 
         if(convertView == null){
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item_review, parent, false);
         }
         ButterKnife.bind(this, convertView);
 
-        parseReview(trailer.getReviewJSONStr(), position);
+        reviewAuthorTextView.setText(reviews.getAuthor());
 
-        reviewAuthorTextView.setText(author);
         readReviewButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse(reviewUrl));
+                intent.setData(Uri.parse(reviews.getUrl()));
                 if(intent.resolveActivity(getContext().getPackageManager()) != null){
                     getContext().startActivity(intent);
                 }
@@ -78,20 +76,5 @@ public class ReviewAdapter extends ArrayAdapter<DetailsFragment.Trailer> {
         return convertView;
     }
 
-    /**
-     * Parses the author and the review url from the JSON object based on the position
-     * in the listview
-     * @param reviewJSONStr
-     * @param position
-     */
-    private void parseReview(String reviewJSONStr, int position){
-        try {
-            JSONObject reviewJSONObject = new JSONObject(reviewJSONStr);
-            JSONArray reviewsListJSON = reviewJSONObject.getJSONArray("results");
-            author = ((JSONObject) reviewsListJSON.get(position)).getString("author");
-            reviewUrl = ((JSONObject) reviewsListJSON.get(position)).getString("url");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
+
 }

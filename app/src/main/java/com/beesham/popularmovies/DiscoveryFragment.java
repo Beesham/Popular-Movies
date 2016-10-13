@@ -17,9 +17,12 @@
 package com.beesham.popularmovies;
 
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -38,6 +41,9 @@ import com.beesham.popularmovies.data.MoviesContract;
 import com.beesham.popularmovies.data.MoviesContract.MoviesEntry;
 import com.beesham.popularmovies.sync.MoviesSyncAdapter;
 
+import org.json.JSONObject;
+
+import static android.R.attr.data;
 
 
 /**
@@ -47,6 +53,7 @@ import com.beesham.popularmovies.sync.MoviesSyncAdapter;
 public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final int MOVIES_LOADER = 1;
+    private static final int MOVIES_FAVORITE_LOADER = 2;
 
     ImageAdapter mImageAdapter;
 
@@ -73,12 +80,26 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
         moviesGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Cursor c = (Cursor) adapterView.getItemAtPosition(i);
-                if(c != null) {
-                    ((DetailsFragment.Callback) getActivity()).onItemSelected(
-                            MoviesEntry.CONTENT_URI
-                                    .buildUpon()
-                                    .appendPath(c.getString(c.getColumnIndex(MoviesEntry.COLUMN_MOVIE_TITLE))).build());
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                String sort_by = prefs.getString(getContext().getString(R.string.pref_sort_key),
+                        getContext().getString(R.string.pref_sort_default));
+
+                if(sort_by.equals("favorites")){
+                    Cursor c = (Cursor) adapterView.getItemAtPosition(i);
+                    if (c != null) {
+                        ((DetailsFragment.Callback) getActivity()).onItemSelected(
+                                MoviesContract.MoviesFavoriteEntry.CONTENT_URI
+                                        .buildUpon()
+                                        .appendPath(c.getString(c.getColumnIndex(MoviesContract.MoviesFavoriteEntry.COLUMN_MOVIE_TITLE))).build());
+                    }
+                }else {
+                    Cursor c = (Cursor) adapterView.getItemAtPosition(i);
+                    if (c != null) {
+                        ((DetailsFragment.Callback) getActivity()).onItemSelected(
+                                MoviesEntry.CONTENT_URI
+                                        .buildUpon()
+                                        .appendPath(c.getString(c.getColumnIndex(MoviesEntry.COLUMN_MOVIE_TITLE))).build());
+                    }
                 }
             }
         });
@@ -88,8 +109,16 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
     }
 
     void onSortChanged(){
-        MoviesSyncAdapter.syncImmediately(getActivity());
-        getLoaderManager().restartLoader(MOVIES_LOADER, null, this);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String sort_by = prefs.getString(getContext().getString(R.string.pref_sort_key),
+                getContext().getString(R.string.pref_sort_default));
+
+        if(sort_by.equals("favorites")) {
+            getLoaderManager().restartLoader(MOVIES_FAVORITE_LOADER, null, this);
+        }else{
+            MoviesSyncAdapter.syncImmediately(getActivity());
+            getLoaderManager().restartLoader(MOVIES_LOADER, null, this);
+        }
     }
 
     @Override
@@ -120,12 +149,27 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
                 MoviesContract.MoviesEntry.COLUMN_MOVIE_USER_RATING
         };
 
-        return new CursorLoader(getActivity(),
-                MoviesEntry.CONTENT_URI,
-                projection,
-                null,
-                null,
-                null);
+        CursorLoader loader = null;
+        switch(id) {
+            case 1:
+                loader = new CursorLoader(getActivity(),
+                        MoviesEntry.CONTENT_URI,
+                        projection,
+                        null,
+                        null,
+                        null);
+                break;
+
+            case 2:
+                loader = new CursorLoader(getActivity(),
+                        MoviesContract.MoviesFavoriteEntry.CONTENT_URI,
+                        projection,
+                        null,
+                        null,
+                        null);
+                break;
+        }
+        return loader;
     }
 
     @Override

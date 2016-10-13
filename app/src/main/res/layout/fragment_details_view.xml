@@ -51,6 +51,12 @@
                     android:layout_height="wrap_content"
                     tools:text="5.0/10"/>
 
+                <Button
+                    android:id="@+id/favorite_button"
+                    android:text="@string/mark_favorite"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
             </LinearLayout>
 
         </LinearLayout>
