@@ -17,11 +17,11 @@
 package com.beesham.popularmovies;
 
 
-import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -38,12 +38,9 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 
 import com.beesham.popularmovies.data.MoviesContract;
+import com.beesham.popularmovies.data.MoviesContract.MoviesFavoriteEntry;
 import com.beesham.popularmovies.data.MoviesContract.MoviesEntry;
 import com.beesham.popularmovies.sync.MoviesSyncAdapter;
-
-import org.json.JSONObject;
-
-import static android.R.attr.data;
 
 
 /**
@@ -55,7 +52,12 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
     private static final int MOVIES_LOADER = 1;
     private static final int MOVIES_FAVORITE_LOADER = 2;
 
-    ImageAdapter mImageAdapter;
+    private GridView mMoviesGridView;
+    private ImageAdapter mImageAdapter;
+    private boolean mTwoPane = false;
+
+    private String SELECTED_KEY = "selected_position";
+    private int mPosition = GridView.INVALID_POSITION;
 
     public DiscoveryFragment() {
         setHasOptionsMenu(true);
@@ -72,28 +74,26 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_discovery, container, false);
 
-        GridView moviesGridView = (GridView) rootView.findViewById(R.id.movies_gridview);
+        mMoviesGridView = (GridView) rootView.findViewById(R.id.movies_gridview);
         mImageAdapter = new ImageAdapter(getContext());
 
-        moviesGridView.setEmptyView(rootView.findViewById(R.id.empty_view));
-        moviesGridView.setAdapter(mImageAdapter);
-        moviesGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mMoviesGridView.setEmptyView(rootView.findViewById(R.id.empty_view));
+        mMoviesGridView.setAdapter(mImageAdapter);
+        mMoviesGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
                 String sort_by = prefs.getString(getContext().getString(R.string.pref_sort_key),
                         getContext().getString(R.string.pref_sort_default));
-
-                if(sort_by.equals("favorites")){
-                    Cursor c = (Cursor) adapterView.getItemAtPosition(i);
+                Cursor c = (Cursor) adapterView.getItemAtPosition(position);
+                if (sort_by.equals("favorites")) {
                     if (c != null) {
                         ((DetailsFragment.Callback) getActivity()).onItemSelected(
                                 MoviesContract.MoviesFavoriteEntry.CONTENT_URI
                                         .buildUpon()
-                                        .appendPath(c.getString(c.getColumnIndex(MoviesContract.MoviesFavoriteEntry.COLUMN_MOVIE_TITLE))).build());
+                                        .appendPath(c.getString(c.getColumnIndex(MoviesFavoriteEntry.COLUMN_MOVIE_TITLE))).build());
                     }
-                }else {
-                    Cursor c = (Cursor) adapterView.getItemAtPosition(i);
+                } else {
                     if (c != null) {
                         ((DetailsFragment.Callback) getActivity()).onItemSelected(
                                 MoviesEntry.CONTENT_URI
@@ -101,11 +101,21 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
                                         .appendPath(c.getString(c.getColumnIndex(MoviesEntry.COLUMN_MOVIE_TITLE))).build());
                     }
                 }
+                mPosition = position;
             }
         });
 
+        if(savedInstanceState != null && savedInstanceState.containsKey(SELECTED_KEY)){
+            mPosition = savedInstanceState.getInt(SELECTED_KEY);
+        }
 
         return rootView;
+    }
+
+    public void setUseFirstItem(boolean twoPane){
+        if(twoPane){
+            mTwoPane = true;
+        }
     }
 
     void onSortChanged(){
@@ -139,14 +149,22 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        if(mPosition != GridView.INVALID_POSITION){
+            outState.putInt(SELECTED_KEY, mPosition);
+        }
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         String[] projection = {
-                MoviesContract.MoviesEntry._ID,
-                MoviesContract.MoviesEntry.COLUMN_MOVIE_TITLE,
-                MoviesContract.MoviesEntry.COLUMN_MOVIE_SYNOPSIS,
-                MoviesContract.MoviesEntry.COLUMN_MOVIE_POSTER,
-                MoviesContract.MoviesEntry.COLUMN_MOVIE_RELEASE_DATE,
-                MoviesContract.MoviesEntry.COLUMN_MOVIE_USER_RATING
+                MoviesEntry._ID,
+                MoviesEntry.COLUMN_MOVIE_TITLE,
+                MoviesEntry.COLUMN_MOVIE_SYNOPSIS,
+                MoviesEntry.COLUMN_MOVIE_POSTER,
+                MoviesEntry.COLUMN_MOVIE_RELEASE_DATE,
+                MoviesEntry.COLUMN_MOVIE_USER_RATING
         };
 
         CursorLoader loader = null;
@@ -162,7 +180,7 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
 
             case 2:
                 loader = new CursorLoader(getActivity(),
-                        MoviesContract.MoviesFavoriteEntry.CONTENT_URI,
+                        MoviesFavoriteEntry.CONTENT_URI,
                         projection,
                         null,
                         null,
@@ -172,9 +190,25 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
         return loader;
     }
 
+
     @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+    public void onLoadFinished(Loader<Cursor> loader, final Cursor data) {
         mImageAdapter.swapCursor(data);
+        if(mPosition != GridView.INVALID_POSITION){
+            mMoviesGridView.smoothScrollToPosition(mPosition);
+        }
+        if(mTwoPane &&  data.moveToFirst()) {
+            new Handler().post(new Runnable() {
+                @Override
+                public void run() {
+                    ((DetailsFragment.Callback) getActivity()).onItemSelected(
+                            MoviesEntry.CONTENT_URI
+                                    .buildUpon()
+                                    .appendPath(data.getString(data.getColumnIndex(MoviesEntry.COLUMN_MOVIE_TITLE))).build());
+                }
+            });
+        }
+
     }
 
     @Override

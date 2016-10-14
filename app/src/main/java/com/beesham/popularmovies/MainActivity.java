@@ -32,24 +32,52 @@ import static java.security.AccessController.getContext;
 public class MainActivity extends AppCompatActivity implements DetailsFragment.Callback {
 
     private String mSortBy;
+    private boolean mTwoPane;
+    private static final String DETAIL_FRAGMENT_TAG = "DFTAG";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        if(findViewById(R.id.movie_details_container) != null){
+            mTwoPane = true;
+            if(savedInstanceState == null){
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.movie_details_container, new DetailsFragment())
+                        .commit();
+            }
+        }else{
+            mTwoPane = false;
+        }
+
+        DiscoveryFragment discoveryFragment = ((DiscoveryFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.fragment_discovery));
+        discoveryFragment.setUseFirstItem(mTwoPane);
 
         MoviesSyncAdapter.initializeSyncAdapter(this);
     }
 
     @Override
     public void onItemSelected(Uri contentUri) {
-        Intent intent = new Intent(this, DetailsActivity.class).setData(contentUri);
-        startActivity(intent);
+        if(mTwoPane){
+            Bundle args = new Bundle();
+            args.putParcelable(DetailsFragment.DETAIL_URI, contentUri);
+
+            DetailsFragment detailsFragment = new DetailsFragment();
+            detailsFragment.setArguments(args);
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.movie_details_container, detailsFragment, DETAIL_FRAGMENT_TAG)
+                    .commit();
+        }else {
+            Intent intent = new Intent(this, DetailsActivity.class).setData(contentUri);
+            startActivity(intent);
+        }
     }
 
     @Override
-    protected void onPostResume() {
-        super.onPostResume();
+    protected void onResume() {
+        super.onResume();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String sortBy = prefs.getString(getString(R.string.pref_sort_key),
                 getString(R.string.pref_sort_default));

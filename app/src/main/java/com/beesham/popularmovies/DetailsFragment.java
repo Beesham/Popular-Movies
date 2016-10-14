@@ -29,6 +29,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -251,11 +252,13 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
     */
     private void parseReview(){
         try {
-            JSONObject reviewJSONObject = new JSONObject(mReviewJSONStr);
-            JSONArray reviewsListJSON = reviewJSONObject.getJSONArray("results");
-            for(int i = 0; i < reviewsListJSON.length(); i++){
-                JSONObject trailerJSON = reviewsListJSON.getJSONObject(i);
-                mReviewsList.add(new Reviews(trailerJSON.getString("author"), trailerJSON.getString("url")));
+            if(mReviewJSONStr != null) {
+                JSONObject reviewJSONObject = new JSONObject(mReviewJSONStr);
+                JSONArray reviewsListJSON = reviewJSONObject.getJSONArray("results");
+                for (int i = 0; i < reviewsListJSON.length(); i++) {
+                    JSONObject trailerJSON = reviewsListJSON.getJSONObject(i);
+                    mReviewsList.add(new Reviews(trailerJSON.getString("author"), trailerJSON.getString("url")));
+                }
             }
 
         } catch (JSONException e) {
@@ -307,7 +310,7 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
                             selectionArgs,
                             null);
                 }
-                break;
+
 
             case 2:
                 projection = new String[]{
@@ -340,7 +343,9 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        if(!data.moveToFirst()) return;
+        if(!data.moveToFirst()) {
+            return;
+        }
 
         switch (loader.getId()){
             case 1:

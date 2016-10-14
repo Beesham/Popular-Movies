@@ -68,10 +68,17 @@
             android:padding="16dp"
             tools:text="This is the synopsis for the movie."/>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/black"/>
+
         <TextView
             android:text="@string/trailers_label"
+            android:textStyle="bold"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
+            android:gravity="center_vertical"
             android:paddingLeft="16dp"/>
 
         <com.beesham.popularmovies.ExpandedListView
@@ -84,12 +91,20 @@
             android:id="@+id/empty_trailers_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"/>
+            android:layout_gravity="center_horizontal"
+            android:paddingBottom="16dp"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/black"/>
 
         <TextView
             android:text="@string/reviews_label"
+            android:textStyle="bold"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
+            android:gravity="center_vertical"
             android:paddingLeft="16dp"/>
 
         <com.beesham.popularmovies.ExpandedListView

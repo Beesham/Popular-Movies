@@ -32,7 +32,7 @@ import com.squareup.picasso.Picasso;
  */
 public class ImageAdapter extends CursorAdapter {
 
-    Context mContext;
+    private Context mContext;
 
     public ImageAdapter(Context context) {
         super(context, null, 0);
