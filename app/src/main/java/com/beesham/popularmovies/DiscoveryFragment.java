@@ -222,6 +222,7 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
     @Override
     public void onLoadFinished(Loader<Cursor> loader, final Cursor data) {
         mImageAdapter.swapCursor(data);
+
         if(mPosition != GridView.INVALID_POSITION){
             mMoviesGridView.smoothScrollToPosition(mPosition);
         }

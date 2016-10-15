@@ -71,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements DetailsFragment.C
     public void onItemSelected(Uri contentUri) {
         if(mTwoPane){
             Bundle args = new Bundle();
+            args.putBoolean("twoPane", mTwoPane);
             args.putParcelable(DetailsFragment.DETAIL_URI, contentUri);
 
             DetailsFragment detailsFragment = new DetailsFragment();
@@ -83,6 +84,12 @@ public class MainActivity extends AppCompatActivity implements DetailsFragment.C
             Intent intent = new Intent(this, DetailsActivity.class).setData(contentUri);
             startActivity(intent);
         }
+    }
+
+    public void removeDetailsFragment(){
+        getSupportFragmentManager().beginTransaction()
+                .remove(getSupportFragmentManager().findFragmentByTag(DETAIL_FRAGMENT_TAG))
+                .commit();
     }
 
     @Override

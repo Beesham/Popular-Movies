@@ -7,7 +7,7 @@
 
     <string name="empty_reviews">No Reviews</string>
     <string name="empty_trailers">No Trailers</string>
-    <string name="rating"><xliff:g id="rating">%s/10</xliff:g></string>
+    <string name="rating"><xliff:g id="rating">%d/10</xliff:g></string>
 
     <string name="mark_favorite">Mark As\nFavorite</string>
     <string name="mark_unfavorite">Un-favorite</string>

@@ -23,6 +23,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -33,9 +34,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -267,6 +270,13 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
         mReviewAdapter.notifyDataSetChanged();
     }
 
+    private String parseReleaseYear(String releaseDate){
+
+        String releaseYear = releaseDate.substring(0,4);
+
+        return releaseYear;
+    }
+
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -344,6 +354,15 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if(!data.moveToFirst()) {
+            new Handler().post(new Runnable() {
+                @Override
+                public void run() {
+                    if(getArguments().getBoolean("twoPane")){
+                        ((MainActivity) getActivity()).removeDetailsFragment();
+                    }
+                }
+            });
+
             return;
         }
 
@@ -352,8 +371,8 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
                 titleTextView.setText(data.getString(data.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_MOVIE_TITLE)));
                 Picasso.with(getContext()).load(data.getString(data.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_MOVIE_POSTER))).into(posterImageView);
                 overviewTextView.setText(data.getString(data.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_MOVIE_SYNOPSIS)));
-                ratingsTextView.setText(getString(R.string.rating, data.getString(data.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_MOVIE_USER_RATING))));
-                releaseDateTextView.setText(data.getString(data.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_MOVIE_RELEASE_DATE)));
+                ratingsTextView.setText(getString(R.string.rating, data.getInt(data.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_MOVIE_USER_RATING))));
+                releaseDateTextView.setText(parseReleaseYear(data.getString(data.getColumnIndex(MoviesContract.MoviesFavoriteEntry.COLUMN_MOVIE_RELEASE_DATE))));
                 mTrailersJSONStr = data.getString(data.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_MOVIE_TRAILERS));
                 mReviewJSONStr = data.getString(data.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_MOVIE_REVIEWS));
                 break;
@@ -362,8 +381,8 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
                 titleTextView.setText(data.getString(data.getColumnIndex(MoviesContract.MoviesFavoriteEntry.COLUMN_MOVIE_TITLE)));
                 Picasso.with(getContext()).load(data.getString(data.getColumnIndex(MoviesContract.MoviesFavoriteEntry.COLUMN_MOVIE_POSTER))).into(posterImageView);
                 overviewTextView.setText(data.getString(data.getColumnIndex(MoviesContract.MoviesFavoriteEntry.COLUMN_MOVIE_SYNOPSIS)));
-                ratingsTextView.setText(getString(R.string.rating, data.getString(data.getColumnIndex(MoviesContract.MoviesFavoriteEntry.COLUMN_MOVIE_USER_RATING))));
-                releaseDateTextView.setText(data.getString(data.getColumnIndex(MoviesContract.MoviesFavoriteEntry.COLUMN_MOVIE_RELEASE_DATE)));
+                ratingsTextView.setText(getString(R.string.rating, data.getInt(data.getColumnIndex(MoviesContract.MoviesFavoriteEntry.COLUMN_MOVIE_USER_RATING))));
+                releaseDateTextView.setText(parseReleaseYear(data.getString(data.getColumnIndex(MoviesContract.MoviesFavoriteEntry.COLUMN_MOVIE_RELEASE_DATE))));
                 mTrailersJSONStr = data.getString(data.getColumnIndex(MoviesContract.MoviesFavoriteEntry.COLUMN_MOVIE_TRAILERS));
                 mReviewJSONStr = data.getString(data.getColumnIndex(MoviesContract.MoviesFavoriteEntry.COLUMN_MOVIE_REVIEWS));
                 break;

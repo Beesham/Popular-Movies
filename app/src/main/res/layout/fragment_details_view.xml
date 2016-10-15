@@ -4,7 +4,9 @@
     android:layout_height="match_parent"
     tools:context="com.beesham.popularmovies.DetailsFragment">
 
+
     <LinearLayout
+        android:id="@+id/details_linear_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
@@ -43,17 +45,22 @@
                     android:id="@+id/release_date_textview"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    tools:text="2016/03/24"/>
+                    android:paddingBottom="8dp"
+                    android:textAppearance="?android:textAppearanceLarge"
+                    tools:text="2016"/>
 
                 <TextView
                     android:id="@+id/rating_textview"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:paddingBottom="8dp"
                     tools:text="5.0/10"/>
 
                 <Button
                     android:id="@+id/favorite_button"
                     android:text="@string/mark_favorite"
+                    android:textColor="@android:color/white"
+                    android:background="@color/colorPrimary"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
 
