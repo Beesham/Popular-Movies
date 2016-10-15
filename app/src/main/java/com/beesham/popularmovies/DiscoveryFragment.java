@@ -20,6 +20,7 @@ package com.beesham.popularmovies;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -89,6 +90,10 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
         mImageAdapter = new ImageAdapter(getContext());
 
         mMoviesGridView.setEmptyView(rootView.findViewById(R.id.empty_view));
+
+        mMoviesGridView.setDrawSelectorOnTop(true);
+        mMoviesGridView.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
+
         mMoviesGridView.setAdapter(mImageAdapter);
         mMoviesGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -103,6 +108,7 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
                                 MoviesContract.MoviesFavoriteEntry.CONTENT_URI
                                         .buildUpon()
                                         .appendPath(c.getString(c.getColumnIndex(MoviesFavoriteEntry.COLUMN_MOVIE_TITLE))).build());
+                        mMoviesGridView.setSelection(position);
                     }
                 } else {
                     if (c != null) {
@@ -110,6 +116,7 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
                                 MoviesEntry.CONTENT_URI
                                         .buildUpon()
                                         .appendPath(c.getString(c.getColumnIndex(MoviesEntry.COLUMN_MOVIE_TITLE))).build());
+                        mMoviesGridView.setSelection(position);
                     }
                 }
                 mPosition = position;
@@ -225,6 +232,7 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
 
         if(mPosition != GridView.INVALID_POSITION){
             mMoviesGridView.smoothScrollToPosition(mPosition);
+            mMoviesGridView.setItemChecked(mPosition, true);
         }
         if(mTwoPane &&  data.moveToFirst()) {
             new Handler().post(new Runnable() {
@@ -234,6 +242,7 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
                             MoviesEntry.CONTENT_URI
                                     .buildUpon()
                                     .appendPath(data.getString(data.getColumnIndex(MoviesEntry.COLUMN_MOVIE_TITLE))).build());
+                    mMoviesGridView.setItemChecked(0, true);
                 }
             });
         }

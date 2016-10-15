@@ -14,7 +14,6 @@
 
     <GridView
         style="@style/MoviesListStyle"
-        android:listSelector="@drawable/touch_selector"
         android:id="@+id/movies_gridview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
