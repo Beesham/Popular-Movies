@@ -28,6 +28,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.MenuItemCompat;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -35,12 +36,18 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.GridView;
+import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 
 import com.beesham.popularmovies.data.MoviesContract;
 import com.beesham.popularmovies.data.MoviesContract.MoviesFavoriteEntry;
 import com.beesham.popularmovies.data.MoviesContract.MoviesEntry;
 import com.beesham.popularmovies.sync.MoviesSyncAdapter;
+
+import static android.os.Build.VERSION_CODES.M;
+import static android.support.v4.view.MenuItemCompat.getActionView;
 
 
 /**
@@ -58,6 +65,10 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
 
     private String SELECTED_KEY = "selected_position";
     private int mPosition = GridView.INVALID_POSITION;
+
+    public interface Callback{
+        void setActionBarTitle(String title);
+    }
 
     public DiscoveryFragment() {
         setHasOptionsMenu(true);
@@ -86,7 +97,7 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
                 String sort_by = prefs.getString(getContext().getString(R.string.pref_sort_key),
                         getContext().getString(R.string.pref_sort_default));
                 Cursor c = (Cursor) adapterView.getItemAtPosition(position);
-                if (sort_by.equals("favorites")) {
+                if (sort_by.equals(getString(R.string.pref_sort_favorite))) {
                     if (c != null) {
                         ((DetailsFragment.Callback) getActivity()).onItemSelected(
                                 MoviesContract.MoviesFavoriteEntry.CONTENT_URI
@@ -123,7 +134,7 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
         String sort_by = prefs.getString(getContext().getString(R.string.pref_sort_key),
                 getContext().getString(R.string.pref_sort_default));
 
-        if(sort_by.equals("favorites")) {
+        if(sort_by.equals(getString(R.string.pref_sort_favorite))) {
             getLoaderManager().restartLoader(MOVIES_FAVORITE_LOADER, null, this);
         }else{
             MoviesSyncAdapter.syncImmediately(getActivity());
@@ -140,12 +151,29 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_settings:
-                startActivity(new Intent(getActivity(), SettingsActivity.class));
+            case R.id.action_popular:
+                changePrefs(getString(R.string.pref_sort_popular));
+                ((MainActivity) getActivity()).setActionBarTitle(getString(R.string.pref_sort_popular));
+                return true;
+            case R.id.action_top_rated:
+                changePrefs(getString(R.string.pref_sort_top_rated));
+                ((MainActivity) getActivity()).setActionBarTitle(getString(R.string.pref_sort_top_rated));
+                return true;
+            case R.id.action_favorites:
+                changePrefs(getString(R.string.pref_sort_favorite));
+                ((MainActivity) getActivity()).setActionBarTitle(getString(R.string.pref_sort_favorite));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void changePrefs(String pref_value){
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(getString(R.string.pref_sort_key), pref_value);
+        editor.commit();
+        onSortChanged();
     }
 
     @Override

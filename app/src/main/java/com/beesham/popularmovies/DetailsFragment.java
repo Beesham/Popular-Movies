@@ -124,7 +124,7 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
     }
 
     public interface Callback{
-        public void onItemSelected(Uri title);
+        void onItemSelected(Uri title);
     }
 
     public DetailsFragment() {
@@ -169,7 +169,7 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
                     favoriteButton.setText(R.string.mark_favorite);
                 }else {
                     insertFavoriteMovie();
-                    favoriteButton.setText("Poop");
+                    favoriteButton.setText(R.string.mark_unfavorite);
                 }
             }
         });
@@ -377,7 +377,7 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
         mCursor = data;
 
         if(checkForFavorite()) {
-            favoriteButton.setText("Poop");
+            favoriteButton.setText(R.string.mark_unfavorite);
         }
     }
 

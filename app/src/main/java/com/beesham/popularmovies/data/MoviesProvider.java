@@ -245,7 +245,6 @@ public class MoviesProvider extends ContentProvider{
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
         if(rowsUpdated != 0) getContext().getContentResolver().notifyChange(uri, null);
-        Log.v(LOG_TAG, "rows updated: " + rowsUpdated);
         return rowsUpdated;
     }
 }

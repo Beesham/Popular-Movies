@@ -20,16 +20,20 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 
 import com.beesham.popularmovies.sync.MoviesSyncAdapter;
 
 import static java.security.AccessController.getContext;
 
-public class MainActivity extends AppCompatActivity implements DetailsFragment.Callback {
+public class MainActivity extends AppCompatActivity implements DetailsFragment.Callback, DiscoveryFragment.Callback {
 
     private String mSortBy;
     private boolean mTwoPane;
@@ -53,6 +57,12 @@ public class MainActivity extends AppCompatActivity implements DetailsFragment.C
         DiscoveryFragment discoveryFragment = ((DiscoveryFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.fragment_discovery));
         discoveryFragment.setUseFirstItem(mTwoPane);
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String sort_by = prefs.getString(getString(R.string.pref_sort_key),
+                getString(R.string.pref_sort_default));
+
+        setActionBarTitle(sort_by);
 
         MoviesSyncAdapter.initializeSyncAdapter(this);
     }
@@ -88,5 +98,16 @@ public class MainActivity extends AppCompatActivity implements DetailsFragment.C
             if(discoveryFragment != null) discoveryFragment.onSortChanged();
             mSortBy = sortBy;
         }
+    }
+
+    @Override
+    public void setActionBarTitle(String title) {
+        ActionBar actionBar =  getSupportActionBar();
+
+        if(title.equals(getString(R.string.pref_sort_popular)))
+            actionBar.setTitle(R.string.label_popular);
+        else if(title.equals(getString(R.string.pref_sort_top_rated)))
+            actionBar.setTitle(R.string.label_top_rated);
+        else actionBar.setTitle(R.string.label_favorites);
     }
 }

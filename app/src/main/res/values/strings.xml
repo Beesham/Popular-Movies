@@ -4,10 +4,13 @@
     <string name="trailers_label">Trailers:</string>
     <string name="reviews_label">Reviews:</string>
     <string name="read_review_label">Read review</string>
+
     <string name="empty_reviews">No Reviews</string>
     <string name="empty_trailers">No Trailers</string>
     <string name="rating"><xliff:g id="rating">%s/10</xliff:g></string>
+
     <string name="mark_favorite">Mark As\nFavorite</string>
+    <string name="mark_unfavorite">Un-favorite</string>
 
     <!-- String related to Url construction -->
     <string name="movies_base_url">https://api.themoviedb.org/3/movie/</string>
@@ -29,14 +32,26 @@
 
     <!-- Strings related to Settings -->
 
-    <string name="title_activity_settings">Settings</string>
-
     <!-- General settings -->
     <string name="pref_header_general">General</string>
 
     <string name="pref_title_sort">Sort by</string>
     <string name="pref_sort_key">sort_by</string>
     <string name="pref_sort_default">popular</string>
+    <string name="pref_sort_popular">popular</string>
+    <string name="pref_sort_top_rated">top_rated</string>
+    <string name="pref_sort_favorite">favorites</string>
+
+
+    <!-- Main Activity Labels -->
+    <string name="label_popular">Popular Movies</string>
+    <string name="label_top_rated">Top Rated Movies</string>
+    <string name="label_favorites">Favorite Movies</string>
+
+
+    <!-- Details Activity/Fragment Label -->
+    <string name="label_movie_details">Movie Details</string>
+
 
     <string-array name="pref_list_sort_option">
         <item>Popular</item>

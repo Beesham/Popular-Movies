@@ -26,6 +26,8 @@ public class DetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
 
+        getSupportActionBar().setTitle(R.string.label_movie_details);
+
         if(savedInstanceState == null){
             Bundle args = new Bundle();
             args.putParcelable(DetailsFragment.DETAIL_URI, getIntent().getData());
