@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity implements DetailsFragment.C
     private String mSortBy;
     private boolean mTwoPane;
     private static final String DETAIL_FRAGMENT_TAG = "DFTAG";
+    private static final String TWO_PANE = "twoPane";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements DetailsFragment.C
     public void onItemSelected(Uri contentUri) {
         if(mTwoPane){
             Bundle args = new Bundle();
-            args.putBoolean("twoPane", mTwoPane);
+            args.putBoolean(TWO_PANE, mTwoPane);
             args.putParcelable(DetailsFragment.DETAIL_URI, contentUri);
 
             DetailsFragment detailsFragment = new DetailsFragment();
@@ -79,12 +80,6 @@ public class MainActivity extends AppCompatActivity implements DetailsFragment.C
         }
     }
 
-    public void removeDetailsFragment(){
-        getSupportFragmentManager().beginTransaction()
-                .remove(getSupportFragmentManager().findFragmentByTag(DETAIL_FRAGMENT_TAG))
-                .commit();
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -92,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements DetailsFragment.C
         String sortBy = prefs.getString(getString(R.string.pref_sort_key),
                 getString(R.string.pref_sort_default));
 
-        if(sortBy != null && !sortBy.equals(mSortBy)){
+        if(!sortBy.equals(mSortBy)){
             DiscoveryFragment discoveryFragment = (DiscoveryFragment) getSupportFragmentManager()
                     .findFragmentById(R.id.fragment_discovery);
             if(discoveryFragment != null) discoveryFragment.onSortChanged();

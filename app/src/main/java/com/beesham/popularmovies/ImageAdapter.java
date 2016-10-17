@@ -45,8 +45,6 @@ public class ImageAdapter extends CursorAdapter {
         ImageView imageView = new ImageView(context);
         imageView.setAdjustViewBounds(true);
         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-       // imageView.setBackground(context.getDrawable(R.drawable.touch_selector));
-
 
         return imageView;
     }

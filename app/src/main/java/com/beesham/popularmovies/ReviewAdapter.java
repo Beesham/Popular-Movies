@@ -41,6 +41,7 @@ import static android.R.attr.start;
 
 /**
  * Created by Beesham on 10/11/2016.
+ * Adapter for the review listview used in details fragment
  */
 
 public class ReviewAdapter extends ArrayAdapter<DetailsFragment.Reviews> {

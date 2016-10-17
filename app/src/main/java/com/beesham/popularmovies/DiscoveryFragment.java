@@ -17,10 +17,8 @@
 package com.beesham.popularmovies;
 
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -29,7 +27,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.view.MenuItemCompat;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -37,18 +34,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.GridView;
-import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 
 import com.beesham.popularmovies.data.MoviesContract;
 import com.beesham.popularmovies.data.MoviesContract.MoviesFavoriteEntry;
 import com.beesham.popularmovies.data.MoviesContract.MoviesEntry;
 import com.beesham.popularmovies.sync.MoviesSyncAdapter;
-
-import static android.os.Build.VERSION_CODES.M;
-import static android.support.v4.view.MenuItemCompat.getActionView;
 
 
 /**
@@ -98,14 +89,15 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
                 String sort_by = prefs.getString(getContext().getString(R.string.pref_sort_key),
                         getContext().getString(R.string.pref_sort_default));
+
                 Cursor c = (Cursor) adapterView.getItemAtPosition(position);
+
                 if (sort_by.equals(getString(R.string.pref_sort_favorite))) {
                     if (c != null) {
                         ((DetailsFragment.Callback) getActivity()).onItemSelected(
                                 MoviesContract.MoviesFavoriteEntry.CONTENT_URI
                                         .buildUpon()
                                         .appendPath(c.getString(c.getColumnIndex(MoviesFavoriteEntry.COLUMN_MOVIE_TITLE))).build());
-                       // mMoviesGridView.setSelection(position);
                     }
                 } else {
                     if (c != null) {
@@ -113,7 +105,6 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
                                 MoviesEntry.CONTENT_URI
                                         .buildUpon()
                                         .appendPath(c.getString(c.getColumnIndex(MoviesEntry.COLUMN_MOVIE_TITLE))).build());
-                       // mMoviesGridView.setSelection(position);
                     }
                 }
                 mPosition = position;
@@ -229,8 +220,7 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
 
         if(mPosition != GridView.INVALID_POSITION){
             mMoviesGridView.smoothScrollToPosition(mPosition);
-            //mMoviesGridView.setItemChecked(mPosition, true);
-        }else if(mTwoPane) {
+        }else if(mTwoPane && data.moveToFirst()) {
             new Handler().post(new Runnable() {
                 @Override
                 public void run() {
@@ -238,7 +228,6 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
                             MoviesEntry.CONTENT_URI
                                     .buildUpon()
                                     .appendPath(data.getString(data.getColumnIndex(MoviesEntry.COLUMN_MOVIE_TITLE))).build());
-                    //mMoviesGridView.setItemChecked(0, true);
                 }
             });
         }

@@ -32,6 +32,7 @@ import static android.R.attr.resource;
 
 /**
  * Created by Beesham on 10/11/2016.
+ * Adapter used in trailers listview
  */
 
 public class TrailersAdapter extends ArrayAdapter<DetailsFragment.Trailer> {

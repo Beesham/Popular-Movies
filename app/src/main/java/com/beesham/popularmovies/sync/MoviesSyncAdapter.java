@@ -127,6 +127,12 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter{
         }
     }
 
+    /**
+     * Gets and stores the movie trailer and reviews JSON data
+     * @param movieId
+     * @param flag
+     * @return
+     */
     private String getTrailersOrReviews(String movieId, int flag){
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;

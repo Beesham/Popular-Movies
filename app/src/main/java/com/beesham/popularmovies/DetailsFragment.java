@@ -43,6 +43,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.beesham.popularmovies.data.MoviesContract;
+import com.beesham.popularmovies.data.MoviesContract.MoviesEntry;
+import com.beesham.popularmovies.data.MoviesContract.MoviesFavoriteEntry;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -89,7 +91,9 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
     private ReviewAdapter mReviewAdapter;
     private ArrayList mReviewsList;
 
-
+    /**
+     * This object holds data to be used in the trailers listview
+     */
     class Trailer{
         String trailerName;
         String trailerKey;
@@ -108,6 +112,9 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
         }
     }
 
+    /**
+     * This object holds data to be used in the reviews listview
+     */
     class Reviews{
         String author;
         String url;
@@ -156,7 +163,10 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
                     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                         Intent intent = new Intent();
                         intent.setAction(Intent.ACTION_VIEW);
-                        intent.setData(Uri.parse(getString(R.string.movies_base_youtube_url, ((Trailer) mTrailerList.get(i)).getTrailerKey())));
+
+                        String movieBaseYoutubeUrl = getString(R.string.movies_base_youtube_url, ((Trailer) mTrailerList.get(i)).getTrailerKey());
+
+                        intent.setData(Uri.parse(movieBaseYoutubeUrl));
                         if(intent.resolveActivity(getActivity().getPackageManager()) != null){
                             startActivity(intent);
                         }
@@ -182,8 +192,8 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
             mUri = args.getParcelable(DetailsFragment.DETAIL_URI);
         }
 
-        if(savedInstanceState != null && getArguments().containsKey("uri")){
-            mUri = getArguments().getParcelable("uri");
+        if(savedInstanceState != null && args.containsKey(DetailsFragment.DETAIL_URI)){
+            mUri = args.getParcelable(DetailsFragment.DETAIL_URI);
         }
 
         return rootView;
@@ -192,13 +202,16 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
     @Override
     public void onSaveInstanceState(Bundle outState) {
         if(mUri != null){
-            outState.putParcelable("uri", mUri);
+            outState.putParcelable(DetailsFragment.DETAIL_URI, mUri);
         }
         super.onSaveInstanceState(outState);
     }
 
+    /**
+     * CHecks if the movie is already favorited
+     * @return boolean true or false
+     */
     private boolean checkForFavorite(){
-
         Cursor c = getContext().getContentResolver().query(MoviesContract.MoviesFavoriteEntry.CONTENT_URI,
                 new String[] {MoviesContract.MoviesFavoriteEntry.COLUMN_MOVIE_ID},
                 MoviesContract.MoviesFavoriteEntry.COLUMN_MOVIE_ID + "=?",
@@ -213,6 +226,9 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
         }
     }
 
+    /**
+     * Inserts the movie into the database
+     */
     private void insertFavoriteMovie(){
         String title = mCursor.getString(mCursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_MOVIE_TITLE));
         String id = mCursor.getString(mCursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_MOVIE_ID));
@@ -238,6 +254,9 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
                 movieValues);
     }
 
+    /**
+     * Removes the movies from the favorites
+     */
     private void removeFavorite(){
         String selection = MoviesContract.MoviesFavoriteEntry.COLUMN_MOVIE_ID + "=?";
         String[] selectionArgs = new String[] {mCursor.getString(mCursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_MOVIE_ID))};
@@ -246,7 +265,11 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
                 selectionArgs);
     }
 
-
+    /**
+     * Parses the trailer information needed to create
+     * a Trailer object. This object will then be used
+     * in the trailers listview
+     */
     private void parseTrailers(){
         try {
             JSONObject trailersJSONObject = new JSONObject(mTrailersJSONStr);
@@ -282,10 +305,14 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
         mReviewAdapter.notifyDataSetChanged();
     }
 
+    /**
+     * Parses the year out of the release date
+     * e.g 2016 out of 2016/01/09
+     * @param releaseDate
+     * @return String of the year
+     */
     private String parseReleaseYear(String releaseDate){
-
         String releaseYear = releaseDate.substring(0,4);
-
         return releaseYear;
     }
 
@@ -295,7 +322,7 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
         String sort_by = prefs.getString(getContext().getString(R.string.pref_sort_key),
                 getContext().getString(R.string.pref_sort_default));
 
-        if(sort_by.equals("favorites")){
+        if(sort_by.equals(getString(R.string.pref_sort_favorite))){
             getLoaderManager().initLoader(MOVIE_FAVORITE_LOADER, null, this);
         }else {
             getLoaderManager().initLoader(MOVIE_LOADER, null, this);
@@ -306,68 +333,66 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
-        String[] projection = null;
         switch(id){
             case 1:
-                projection = new String[]{
-                        MoviesContract.MoviesEntry._ID,
-                        MoviesContract.MoviesEntry.COLUMN_MOVIE_ID,
-                        MoviesContract.MoviesEntry.COLUMN_MOVIE_TITLE,
-                        MoviesContract.MoviesEntry.COLUMN_MOVIE_SYNOPSIS,
-                        MoviesContract.MoviesEntry.COLUMN_MOVIE_POSTER,
-                        MoviesContract.MoviesEntry.COLUMN_MOVIE_RELEASE_DATE,
-                        MoviesContract.MoviesEntry.COLUMN_MOVIE_USER_RATING,
-                        MoviesContract.MoviesEntry.COLUMN_MOVIE_TRAILERS,
-                        MoviesContract.MoviesEntry.COLUMN_MOVIE_REVIEWS
-                };
-
-                if(mUri != null){
-                    String selection = MoviesContract.MoviesEntry.COLUMN_MOVIE_TITLE + "=?";
-                    String[] selectionArgs = {mUri.getPathSegments().get(1)};
-
-                    return new CursorLoader(getActivity(),
-                            MoviesContract.MoviesEntry.CONTENT_URI,
-                            projection,
-                            selection,
-                            selectionArgs,
-                            null);
-                }
-
+                return loadFromMovieEntry();
 
             case 2:
-                projection = new String[]{
-                        MoviesContract.MoviesFavoriteEntry._ID,
-                        MoviesContract.MoviesFavoriteEntry.COLUMN_MOVIE_ID,
-                        MoviesContract.MoviesFavoriteEntry.COLUMN_MOVIE_TITLE,
-                        MoviesContract.MoviesFavoriteEntry.COLUMN_MOVIE_SYNOPSIS,
-                        MoviesContract.MoviesFavoriteEntry.COLUMN_MOVIE_POSTER,
-                        MoviesContract.MoviesFavoriteEntry.COLUMN_MOVIE_RELEASE_DATE,
-                        MoviesContract.MoviesFavoriteEntry.COLUMN_MOVIE_USER_RATING,
-                        MoviesContract.MoviesFavoriteEntry.COLUMN_MOVIE_TRAILERS,
-                        MoviesContract.MoviesFavoriteEntry.COLUMN_MOVIE_REVIEWS
-                };
+                return loadFromMovieFavoriteEntry();
+        }
+        return null;
+    }
 
-                if(mUri != null){
-                    String selection = MoviesContract.MoviesFavoriteEntry.COLUMN_MOVIE_TITLE + "=?";
-                    String[] selectionArgs = {mUri.getPathSegments().get(1)};
+    private CursorLoader loadFromMovieEntry(){
+        String[] projection = new String[]{
+                MoviesEntry._ID,
+                MoviesEntry.COLUMN_MOVIE_ID,
+                MoviesEntry.COLUMN_MOVIE_TITLE,
+                MoviesEntry.COLUMN_MOVIE_SYNOPSIS,
+                MoviesEntry.COLUMN_MOVIE_POSTER,
+                MoviesEntry.COLUMN_MOVIE_RELEASE_DATE,
+                MoviesEntry.COLUMN_MOVIE_USER_RATING,
+                MoviesEntry.COLUMN_MOVIE_TRAILERS,
+                MoviesEntry.COLUMN_MOVIE_REVIEWS
+        };
 
-                    return new CursorLoader(getActivity(),
-                            MoviesContract.MoviesFavoriteEntry.CONTENT_URI,
-                            projection,
-                            selection,
-                            selectionArgs,
-                            null);
-                }else{
-                    String selection = MoviesContract.MoviesFavoriteEntry._ID + "=?";
-                    String[] selectionArgs = {"0"};
+        if(mUri != null){
+            String selection = MoviesEntry.COLUMN_MOVIE_TITLE + "=?";
+            String[] selectionArgs = {mUri.getPathSegments().get(1)};
 
-                    return new CursorLoader(getActivity(),
-                            MoviesContract.MoviesFavoriteEntry.CONTENT_URI,
-                            projection,
-                            selection,
-                            selectionArgs,
-                            null);
-                }
+            return new CursorLoader(getActivity(),
+                    MoviesEntry.CONTENT_URI,
+                    projection,
+                    selection,
+                    selectionArgs,
+                    null);
+        }
+        return null;
+    }
+
+    private CursorLoader loadFromMovieFavoriteEntry(){
+        String[] projection = new String[]{
+                MoviesFavoriteEntry._ID,
+                MoviesFavoriteEntry.COLUMN_MOVIE_ID,
+                MoviesFavoriteEntry.COLUMN_MOVIE_TITLE,
+                MoviesFavoriteEntry.COLUMN_MOVIE_SYNOPSIS,
+                MoviesFavoriteEntry.COLUMN_MOVIE_POSTER,
+                MoviesFavoriteEntry.COLUMN_MOVIE_RELEASE_DATE,
+                MoviesFavoriteEntry.COLUMN_MOVIE_USER_RATING,
+                MoviesFavoriteEntry.COLUMN_MOVIE_TRAILERS,
+                MoviesFavoriteEntry.COLUMN_MOVIE_REVIEWS
+        };
+
+        if(mUri != null){
+            String selection = MoviesFavoriteEntry.COLUMN_MOVIE_TITLE + "=?";
+            String[] selectionArgs = {mUri.getPathSegments().get(1)};
+
+            return new CursorLoader(getActivity(),
+                    MoviesFavoriteEntry.CONTENT_URI,
+                    projection,
+                    selection,
+                    selectionArgs,
+                    null);
         }
         return null;
     }
@@ -401,12 +426,16 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
         }
 
 
+        //Clear the lists of old data if any
         mTrailerList.clear();
         mReviewsList.clear();
+
         parseTrailers();
         parseReview();
         mCursor = data;
 
+        //Check if the movie is favorite so appropriate
+        // button state can be placed
         if(checkForFavorite()) {
             favoriteButton.setText(R.string.mark_unfavorite);
         }
