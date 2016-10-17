@@ -403,6 +403,8 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
             return;
         }
 
+        getActivity().findViewById(R.id.details_linear_layout).setVisibility(View.VISIBLE);
+
         switch (loader.getId()){
             case 1:
                 titleTextView.setText(data.getString(data.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_MOVIE_TITLE)));
