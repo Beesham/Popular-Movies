@@ -182,7 +182,19 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
             mUri = args.getParcelable(DetailsFragment.DETAIL_URI);
         }
 
+        if(savedInstanceState != null && getArguments().containsKey("uri")){
+            mUri = getArguments().getParcelable("uri");
+        }
+
         return rootView;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        if(mUri != null){
+            outState.putParcelable("uri", mUri);
+        }
+        super.onSaveInstanceState(outState);
     }
 
     private boolean checkForFavorite(){
@@ -345,8 +357,17 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
                             selection,
                             selectionArgs,
                             null);
+                }else{
+                    String selection = MoviesContract.MoviesFavoriteEntry._ID + "=?";
+                    String[] selectionArgs = {"0"};
+
+                    return new CursorLoader(getActivity(),
+                            MoviesContract.MoviesFavoriteEntry.CONTENT_URI,
+                            projection,
+                            selection,
+                            selectionArgs,
+                            null);
                 }
-                break;
         }
         return null;
     }
@@ -354,15 +375,6 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if(!data.moveToFirst()) {
-            new Handler().post(new Runnable() {
-                @Override
-                public void run() {
-                    if(getArguments().getBoolean("twoPane")){
-                        ((MainActivity) getActivity()).removeDetailsFragment();
-                    }
-                }
-            });
-
             return;
         }
 

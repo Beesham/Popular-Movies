@@ -91,9 +91,6 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
 
         mMoviesGridView.setEmptyView(rootView.findViewById(R.id.empty_view));
 
-        mMoviesGridView.setDrawSelectorOnTop(true);
-        mMoviesGridView.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
-
         mMoviesGridView.setAdapter(mImageAdapter);
         mMoviesGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -108,7 +105,7 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
                                 MoviesContract.MoviesFavoriteEntry.CONTENT_URI
                                         .buildUpon()
                                         .appendPath(c.getString(c.getColumnIndex(MoviesFavoriteEntry.COLUMN_MOVIE_TITLE))).build());
-                        mMoviesGridView.setSelection(position);
+                       // mMoviesGridView.setSelection(position);
                     }
                 } else {
                     if (c != null) {
@@ -116,7 +113,7 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
                                 MoviesEntry.CONTENT_URI
                                         .buildUpon()
                                         .appendPath(c.getString(c.getColumnIndex(MoviesEntry.COLUMN_MOVIE_TITLE))).build());
-                        mMoviesGridView.setSelection(position);
+                       // mMoviesGridView.setSelection(position);
                     }
                 }
                 mPosition = position;
@@ -130,7 +127,7 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
         return rootView;
     }
 
-    public void setUseFirstItem(boolean twoPane){
+    public void setTwoPane(boolean twoPane){
         if(twoPane){
             mTwoPane = true;
         }
@@ -232,9 +229,8 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
 
         if(mPosition != GridView.INVALID_POSITION){
             mMoviesGridView.smoothScrollToPosition(mPosition);
-            mMoviesGridView.setItemChecked(mPosition, true);
-        }
-        if(mTwoPane &&  data.moveToFirst()) {
+            //mMoviesGridView.setItemChecked(mPosition, true);
+        }else if(mTwoPane) {
             new Handler().post(new Runnable() {
                 @Override
                 public void run() {
@@ -242,7 +238,7 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
                             MoviesEntry.CONTENT_URI
                                     .buildUpon()
                                     .appendPath(data.getString(data.getColumnIndex(MoviesEntry.COLUMN_MOVIE_TITLE))).build());
-                    mMoviesGridView.setItemChecked(0, true);
+                    //mMoviesGridView.setItemChecked(0, true);
                 }
             });
         }
