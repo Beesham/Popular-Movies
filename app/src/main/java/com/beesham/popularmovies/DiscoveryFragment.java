@@ -218,6 +218,8 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
     public void onLoadFinished(Loader<Cursor> loader, final Cursor data) {
         mImageAdapter.swapCursor(data);
 
+        View linearLayoutView = getActivity().findViewById(R.id.details_linear_layout);
+
         if(mPosition != GridView.INVALID_POSITION){
             mMoviesGridView.smoothScrollToPosition(mPosition);
         }
@@ -232,6 +234,8 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
                                     .appendPath(data.getString(data.getColumnIndex(MoviesEntry.COLUMN_MOVIE_TITLE))).build());
                 }
             });
+        }else{
+            linearLayoutView.setVisibility(View.INVISIBLE);
         }
 
     }
