@@ -88,6 +88,8 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter{
 
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
+            urlConnection.setConnectTimeout(10000);
+            urlConnection.setReadTimeout(15000);
             urlConnection.connect();
 
             InputStream inputStream = urlConnection.getInputStream();
@@ -159,6 +161,8 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter{
 
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
+            urlConnection.setConnectTimeout(10000);
+            urlConnection.setReadTimeout(15000);
             urlConnection.connect();
 
             InputStream inputStream = urlConnection.getInputStream();

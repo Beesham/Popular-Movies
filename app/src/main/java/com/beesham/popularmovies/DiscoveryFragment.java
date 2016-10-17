@@ -220,7 +220,9 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
 
         if(mPosition != GridView.INVALID_POSITION){
             mMoviesGridView.smoothScrollToPosition(mPosition);
-        }else if(mTwoPane && data.moveToFirst()) {
+        }
+
+        if(mTwoPane && data.moveToFirst()) {
             new Handler().post(new Runnable() {
                 @Override
                 public void run() {
@@ -237,5 +239,6 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         mImageAdapter.swapCursor(null);
+        mPosition = GridView.INVALID_POSITION;
     }
 }

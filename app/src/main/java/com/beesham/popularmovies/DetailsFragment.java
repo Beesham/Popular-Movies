@@ -56,6 +56,8 @@ import java.util.ArrayList;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static android.R.attr.data;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -208,11 +210,11 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
     }
 
     /**
-     * CHecks if the movie is already favorited
+     * Checks if the movie is already favored
      * @return boolean true or false
      */
     private boolean checkForFavorite(){
-        Cursor c = getContext().getContentResolver().query(MoviesContract.MoviesFavoriteEntry.CONTENT_URI,
+        Cursor c = getActivity().getContentResolver().query(MoviesContract.MoviesFavoriteEntry.CONTENT_URI,
                 new String[] {MoviesContract.MoviesFavoriteEntry.COLUMN_MOVIE_ID},
                 MoviesContract.MoviesFavoriteEntry.COLUMN_MOVIE_ID + "=?",
                 new String[] {mCursor.getString(mCursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_MOVIE_ID))},
@@ -445,7 +447,13 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
+        mTrailerList.clear();
+        mReviewsList.clear();
 
+        titleTextView.setText(null);
+        overviewTextView.setText(null);
+        ratingsTextView.setText(null);
+        releaseDateTextView.setText(null);
     }
 
 
