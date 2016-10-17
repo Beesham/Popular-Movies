@@ -47,7 +47,7 @@ public class MoviesDbHelper extends SQLiteOpenHelper {
                 + MoviesEntry.COLUMN_MOVIE_POSTER + " TEXT NOT NULL, "
                 + MoviesEntry.COLUMN_MOVIE_RELEASE_DATE + " INTEGER NOT NULL, "
                 + MoviesEntry.COLUMN_MOVIE_USER_RATING + " TEXT NOT NULL, "
-                + MoviesEntry.COLUMN_MOVIE_TRAILERS + " TEXT NOT NULL,"
+                + MoviesEntry.COLUMN_MOVIE_TRAILERS + " TEXT,"
                 + MoviesEntry.COLUMN_MOVIE_REVIEWS + " TEXT"
                 + ");";
 
@@ -59,7 +59,7 @@ public class MoviesDbHelper extends SQLiteOpenHelper {
                 + MoviesFavoriteEntry.COLUMN_MOVIE_POSTER + " TEXT NOT NULL, "
                 + MoviesFavoriteEntry.COLUMN_MOVIE_RELEASE_DATE + " INTEGER NOT NULL, "
                 + MoviesFavoriteEntry.COLUMN_MOVIE_USER_RATING + " TEXT NOT NULL, "
-                + MoviesFavoriteEntry.COLUMN_MOVIE_TRAILERS + " TEXT NOT NULL,"
+                + MoviesFavoriteEntry.COLUMN_MOVIE_TRAILERS + " TEXT,"
                 + MoviesFavoriteEntry.COLUMN_MOVIE_REVIEWS + " TEXT,"
                 + " UNIQUE (" + MoviesFavoriteEntry.COLUMN_MOVIE_ID + ") ON CONFLICT REPLACE"
                 + ");";

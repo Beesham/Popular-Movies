@@ -27,6 +27,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -41,12 +42,16 @@ import com.beesham.popularmovies.data.MoviesContract.MoviesFavoriteEntry;
 import com.beesham.popularmovies.data.MoviesContract.MoviesEntry;
 import com.beesham.popularmovies.sync.MoviesSyncAdapter;
 
+import static android.icu.lang.UCharacter.GraphemeClusterBreak.L;
+
 
 /**
  * A simple {@link Fragment} subclass.
  * Displays movies based on popularity or highest rated
  */
 public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+
+    private static final String LOG_TAG = DiscoveryFragment.class.getSimpleName();
 
     private static final int MOVIES_LOADER = 1;
     private static final int MOVIES_FAVORITE_LOADER = 2;
@@ -130,8 +135,10 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
                 getContext().getString(R.string.pref_sort_default));
 
         if(sort_by.equals(getString(R.string.pref_sort_favorite))) {
+            mPosition = GridView.INVALID_POSITION;
             getLoaderManager().restartLoader(MOVIES_FAVORITE_LOADER, null, this);
         }else{
+            mPosition = GridView.INVALID_POSITION;
             MoviesSyncAdapter.syncImmediately(getActivity());
             getLoaderManager().restartLoader(MOVIES_LOADER, null, this);
         }
@@ -220,22 +227,24 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
 
         View linearLayoutView = getActivity().findViewById(R.id.details_linear_layout);
 
-        if(mPosition != GridView.INVALID_POSITION){
-            mMoviesGridView.smoothScrollToPosition(mPosition);
-        }
 
-        if(mTwoPane && data.moveToFirst()) {
-            new Handler().post(new Runnable() {
-                @Override
-                public void run() {
-                    ((DetailsFragment.Callback) getActivity()).onItemSelected(
-                            MoviesEntry.CONTENT_URI
-                                    .buildUpon()
-                                    .appendPath(data.getString(data.getColumnIndex(MoviesEntry.COLUMN_MOVIE_TITLE))).build());
-                }
-            });
-        }else{
-            linearLayoutView.setVisibility(View.INVISIBLE);
+        if(mTwoPane) {
+            if(mPosition != GridView.INVALID_POSITION) {
+                mMoviesGridView.smoothScrollToPosition(mPosition);
+            }else if(data.moveToFirst()) {
+                new Handler().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        ((DetailsFragment.Callback) getActivity()).onItemSelected(
+                                MoviesEntry.CONTENT_URI
+                                        .buildUpon()
+                                        .appendPath(data.getString(data.getColumnIndex(MoviesEntry.COLUMN_MOVIE_TITLE))).build());
+                        mMoviesGridView.setSelected(true);
+                    }
+                });
+            }else{
+                linearLayoutView.setVisibility(View.INVISIBLE);
+            }
         }
 
     }
@@ -243,6 +252,5 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         mImageAdapter.swapCursor(null);
-        mPosition = GridView.INVALID_POSITION;
     }
 }
