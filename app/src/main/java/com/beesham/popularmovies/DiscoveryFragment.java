@@ -42,7 +42,6 @@ import com.beesham.popularmovies.data.MoviesContract.MoviesFavoriteEntry;
 import com.beesham.popularmovies.data.MoviesContract.MoviesEntry;
 import com.beesham.popularmovies.sync.MoviesSyncAdapter;
 
-import static android.icu.lang.UCharacter.GraphemeClusterBreak.L;
 
 
 /**
@@ -200,6 +199,7 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
         CursorLoader loader = null;
         switch(id) {
             case 1:
+                Log.v(LOG_TAG, "Loading from movies");
                 loader = new CursorLoader(getActivity(),
                         MoviesEntry.CONTENT_URI,
                         projection,
@@ -209,6 +209,7 @@ public class DiscoveryFragment extends Fragment implements LoaderManager.LoaderC
                 break;
 
             case 2:
+                Log.v(LOG_TAG, "Loading from movies favorite");
                 loader = new CursorLoader(getActivity(),
                         MoviesFavoriteEntry.CONTENT_URI,
                         projection,

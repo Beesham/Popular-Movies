@@ -23,10 +23,13 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.beesham.popularmovies.sync.MoviesSyncAdapter;
 
 public class MainActivity extends AppCompatActivity implements DetailsFragment.Callback, DiscoveryFragment.Callback {
+
+    private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     private String mSortBy;
     private boolean mTwoPane;
@@ -53,10 +56,15 @@ public class MainActivity extends AppCompatActivity implements DetailsFragment.C
         discoveryFragment.setTwoPane(mTwoPane);
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(getString(R.string.pref_sort_key), getString(R.string.pref_sort_default));
+        editor.commit();
+
         String sort_by = prefs.getString(getString(R.string.pref_sort_key),
                 getString(R.string.pref_sort_default));
 
         setActionBarTitle(sort_by);
+        Log.v(LOG_TAG, "sort_by: " + sort_by);
 
         MoviesSyncAdapter.initializeSyncAdapter(this);
     }
